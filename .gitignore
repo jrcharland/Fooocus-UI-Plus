@@ -25,7 +25,7 @@ user_path_config-deprecated.txt
 /venv
 /tmp
 /ui-config.json
-/outputs
+/outputs/*
 /config.json
 /log
 /webui.settings.bat
