@@ -19,6 +19,8 @@ def normalize_key(k):
     k = k.replace('Sai', 'SAI')
     k = k.replace('Mre', 'MRE')
     k = k.replace('(s', '(S')
+    k = k.replace('Iga', 'IGA')
+    k = k.replace('Sid Lee', 'SID LEE')
     return k
 
 
@@ -30,7 +32,8 @@ for x in ['sdxl_styles_fooocus.json',
           'sdxl_styles_mre.json',
           'sdxl_styles_twri.json',
           'sdxl_styles_diva.json',
-          'sdxl_styles_marc_k3nt3l.json']:
+          'sdxl_styles_marc_k3nt3l.json',
+          'sdxl_styles_custom.json']:
     if x in styles_files:
         styles_files.remove(x)
         styles_files.append(x)

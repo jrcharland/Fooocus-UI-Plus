@@ -183,19 +183,13 @@ with shared.gradio_root:
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
-# Exactly like enhancement, redundant.                    
-#                    with gr.TabItem(label='Upscale or Variation') as uov_tab:
-#                        with gr.Row():
-#                            with gr.Column():
-#                                uov_input_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False)
-#                            with gr.Column():
-#                                uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
-                    with gr.TabItem(label='Enhance') as enhance_tab:
+                    with gr.TabItem(label='Upscale or Variation') as uov_tab:
                         with gr.Row():
                             with gr.Column():
-                                enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
-
-
+                                uov_input_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False)
+                            with gr.Column():
+                                uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Documentation</a>')
                     with gr.TabItem(label='Image Prompt') as ip_tab:
                         with gr.Row():
                             ip_images = []
@@ -228,6 +222,7 @@ with shared.gradio_root:
                                         ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
+                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Documentation</a>')
 
                         def ip_advance_checked(x):
                             return [gr.update(visible=x)] * len(ip_ad_cols) + \
@@ -251,8 +246,8 @@ with shared.gradio_root:
                                                                      label='Additional Prompt Quick List',
                                                                      components=[inpaint_additional_prompt],
                                                                      visible=False)
+                                gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Documentation</a>')
                                 example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
-                                gr.HTML('C\'est souvent mieux d\'utiliser <b>Quality</b> ou <b>Average</b> pour faire du inpainting')
 
                             with gr.Column(visible=False) as inpaint_mask_generation_col:
                                 inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", mask_opacity=1, elem_id='inpaint_mask_canvas')
@@ -276,8 +271,7 @@ with shared.gradio_root:
                                                                             show_progress=False, queue=False)
 
                                 with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
-                                    inpaint_mask_sam_model = gr.Dropdown(label='Auto-detection model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
-                                    gr.HTML('vit_b pour base, _l pour large, _h pour huge. Large est parfait entre temps et précision')
+                                    inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
                                     inpaint_mask_sam_max_detections = gr.Slider(label="Maximum number of detections", info="Set to 0 to detect all", minimum=0, maximum=10, value=modules.config.default_sam_max_detections, step=1, interactive=True)
@@ -328,6 +322,7 @@ with shared.gradio_root:
                                     value=flags.desc_type_photo)
                                 desc_btn = gr.Button(value='Describe this Image into Prompt')
                                 desc_image_size = gr.Textbox(label='Image Size and Recommended Size', elem_id='desc_image_size', visible=False)
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Documentation</a>')
 
                                 def trigger_show_image_properties(image):
                                     value = modules.util.get_image_size_info(image, modules.flags.sdxl_aspect_ratios)
@@ -335,6 +330,12 @@ with shared.gradio_root:
 
                                 desc_input_image.upload(trigger_show_image_properties, inputs=desc_input_image,
                                                         outputs=desc_image_size, show_progress=False, queue=False)
+
+                    with gr.TabItem(label='Enhance') as enhance_tab:
+                        with gr.Row():
+                            with gr.Column():
+                                enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
 
                     with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
@@ -362,7 +363,6 @@ with shared.gradio_root:
                     with gr.TabItem(label='Upscale or Variation'):
                         with gr.Row():
                             with gr.Column():
-                                gr.HTML('Les variations ressemblent beaucoup aux variations de Midjourney. Il est également possible de faire des variations / upscale d\'images Midjourney ou d\'inspirations. L\'upscale marche correct, mais il existe de meilleures méthodes que je n\'ai pas eu le temps encore d\'implémentées.')
                                 enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list,
                                                               value=modules.config.default_enhance_uov_method)
                                 enhance_uov_processing_order = gr.Radio(label='Order of Processing',
@@ -379,6 +379,7 @@ with shared.gradio_root:
                                                                     inputs=enhance_uov_processing_order,
                                                                     outputs=enhance_uov_prompt_type,
                                                                     queue=False, show_progress=False)
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
                     enhance_ctrls = []
                     enhance_inpaint_mode_ctrls = []
                     enhance_inpaint_engine_ctrls = []
@@ -423,11 +424,10 @@ with shared.gradio_root:
                                 with gr.Accordion("SAM Options",
                                                   visible=modules.config.default_enhance_inpaint_mask_model == 'sam',
                                                   open=False) as sam_options:
-                                    enhance_mask_sam_model = gr.Dropdown(label='Auto-detection model',
+                                    enhance_mask_sam_model = gr.Dropdown(label='SAM model',
                                                                          choices=flags.inpaint_mask_sam_model,
                                                                          value=modules.config.default_inpaint_mask_sam_model,
                                                                          interactive=True)
-                                    gr.HTML('vit_b pour base, _l pour large, _h pour huge. Large est parfait entre temps et précision')
                                     enhance_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0,
                                                                            maximum=1.0, value=0.3, step=0.05,
                                                                            interactive=True)
@@ -441,10 +441,8 @@ with shared.gradio_root:
                                                                                 step=1, interactive=True)
 
                             with gr.Accordion("Inpaint", visible=True, open=False):
-                                gr.HTML('C\'est souvent mieux d\'utiliser <b>Quality</b> ou <b>Average</b> pour faire du inpainting')
-
                                 enhance_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
-                                                                   value=modules.flags.inpaint_option_detail,
+                                                                   value=modules.config.default_inpaint_method,
                                                                    label='Method', interactive=True)
                                 enhance_inpaint_disable_initial_latent = gr.Checkbox(
                                     label='Disable initial latent in inpaint', value=False)
@@ -473,6 +471,7 @@ with shared.gradio_root:
                                                                                  '(default is 0, always processed before any mask invert)')
                                 enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
 
+                            gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
 
                         enhance_ctrls += [
                             enhance_enabled,
@@ -524,8 +523,8 @@ with shared.gradio_root:
                                         outputs=image_input_panel, queue=False, show_progress=False, _js=switch_js)
             ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
 
-            current_tab = gr.Textbox(value='enhance', visible=False)
-#            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            current_tab = gr.Textbox(value='uov', visible=False)
+            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
@@ -537,18 +536,16 @@ with shared.gradio_root:
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Settings'):
                 if not args_manager.args.disable_preset_selection:
-                    preset_selection = gr.Radio(label='Preset',
+                    preset_selection = gr.Dropdown(label='Preset',
                                                    choices=modules.config.available_presets,
                                                    value=args_manager.args.preset if args_manager.args.preset else "initial",
-                                                   elem_classes=['preset_selection'])
+                                                   interactive=True)
 
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=flags.Performance.values(),
                                                  value=modules.config.default_performance,
                                                  elem_classes=['performance_selection'])
-
-                gr.HTML("<b>Quality</b> donne le meilleur rendu, mais prends environ ~25 sec/image.<br /><b>Average</b> prend autour de ~15 sec/image.<br /><b>Speed</b> et <b>Hyper-speed</b> autour de ~5 sec/image, mais il n'est pas possible d'utiliser des prompt négatif ou de varier le CFG (créativité).<br /><br /><b>Speed</b> et <b>Hyper-speed</b> sont 2 projets différents avec le même but, personnellement je trouve que Hyper marche mieux, mais donne plus souvent des résultats semblables. Par contre, Speed ajoute souvent plus de détails à l'image, souvent un peu trop contrasté. Peut être interessant de tester les 2 lors de retouches/inpaint. <br /><br />C\'est souvent mieux d\'utiliser <b>Quality</b> ou <b>Average</b> pour faire du inpainting ou \"enhancements\"")
-
+                gr.HTML("Details :<br /><b>Quality</b> donne le meilleur rendu, mais prends environ ~25 sec/image.<br /><b>Average</b> prend autour de ~15 sec/image.<br /><b>Speed</b> et <b>Hyper-speed</b> autour de ~5 sec/image, mais il n'est pas possible d'utiliser des prompt négatif ou de varier le CFG (créativité).<br /><br /><b>Speed</b> et <b>Hyper-speed</b> sont 2 projets différents avec le même but, personnellement je trouve que Hyper marche mieux, mais donne plus souvent des résultats semblables. Par contre, Speed ajoute souvent plus de détails a l'image, souvent un peu trop contrasté. Peut être interessant de tester les 2 lors de retouches/inpaint.")
                 with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
                     aspect_ratios_selection = gr.Radio(label='Aspect Ratios', show_label=False,
                                                        choices=modules.config.available_aspect_ratios_labels,
@@ -561,11 +558,10 @@ with shared.gradio_root:
 
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
-#remove the selection of output format, to always save in png
-
-                output_format = gr.Radio(label='Output Format',
-                                         choices=flags.OutputFormat.list(),
-                                         value=modules.config.default_output_format, visible=False)
+#                output_format = gr.Radio(label='Output Format',
+#                                         choices=flags.OutputFormat.list(),
+#                                         value=modules.config.default_output_format)
+                output_format = modules.config.default_output_format
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
@@ -573,10 +569,6 @@ with shared.gradio_root:
                                              value=modules.config.default_prompt_negative)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
-                mixing_image_prompt_and_inpaint = gr.Checkbox(label='Mixing Image Prompt and Inpaint', value=False)
-                
-                inpaint_strength = gr.Slider(label='Inpaint Denoising Strength', minimum=0.0, maximum=1.0, step=0.001, value=1.0, info='Le denoising est à quel point l\'élément sous le masque est gardé. 0 rien ne change, 1 tout change.')
-
 
                 def random_checked(r):
                     return gr.update(visible=not r)
@@ -600,9 +592,7 @@ with shared.gradio_root:
                     if args_manager.args.disable_image_log:
                         return gr.update(value='')
 
-#change for new history pluggin
                     return gr.update(value=f'<a href="file={get_current_html_path(output_format)}" target="_blank">\U0001F4DA History Log</a>')
-                    #return gr.update(value=f'<a>\U0001F4DA History Log</a>')
 
                 history_link = gr.HTML()
                 shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
@@ -681,6 +671,7 @@ with shared.gradio_root:
                 sharpness = gr.Slider(label='Image Sharpness', minimum=0.0, maximum=30.0, step=0.001,
                                       value=modules.config.default_sample_sharpness,
                                       info='Higher value means image and texture are sharper.')
+                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Documentation</a>')
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
                 with gr.Column(visible=False) as dev_tools:
@@ -775,7 +766,9 @@ with shared.gradio_root:
                                                                info='Do not preprocess images. (Inputs are already canny/depth/cropped-face/etc.)')
 
                         mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale',
-                                                                           value=False, visible = False)
+                                                                           value=False)
+                        mixing_image_prompt_and_inpaint = gr.Checkbox(label='Mixing Image Prompt and Inpaint',
+                                                                      value=False)
 
                         controlnet_softness = gr.Slider(label='Softness of ControlNet', minimum=0.0, maximum=1.0,
                                                         step=0.001, value=0.25,
@@ -798,6 +791,11 @@ with shared.gradio_root:
                                                      value=modules.config.default_inpaint_engine_version,
                                                      choices=flags.inpaint_engine_versions,
                                                      info='Version of Fooocus inpaint model. If set, use performance Quality or Speed (no performance LoRAs) for best results.')
+                        inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
+                                                     minimum=0.0, maximum=1.0, step=0.001, value=1.0,
+                                                     info='Same as the denoising strength in A1111 inpaint. '
+                                                          'Only used in inpaint, not used in outpaint. '
+                                                          '(Outpaint always use 1.0)')
                         inpaint_respective_field = gr.Slider(label='Inpaint Respective Field',
                                                              minimum=0.0, maximum=1.0, step=0.001, value=0.618,
                                                              info='The area to inpaint. '
@@ -924,7 +922,7 @@ with shared.gradio_root:
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt, disable_intermediate_results
                                      ], queue=False, show_progress=False)
 
-        output_format.input(lambda x: gr.update(output_format=x), inputs=output_format)
+#        output_format.input(lambda x: gr.update(output_format=x), inputs=output_format)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
@@ -944,7 +942,6 @@ with shared.gradio_root:
                 engine, strength, respective_field
             ], show_progress=False, queue=False)
 
-
         generate_mask_button.click(fn=generate_mask,
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
                                            inpaint_mask_dino_prompt_text, inpaint_mask_sam_model,
@@ -953,20 +950,15 @@ with shared.gradio_root:
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
         ctrls = [currentTask, generate_image_grid]
-
         ctrls += [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed,
+            performance_selection, aspect_ratios_selection, image_number, image_seed,
             read_wildcards_in_order, sharpness, guidance_scale
         ]
 
-        empty_uov_input_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False, visible=False)
-        empty_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled, visible=False)
-
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
-#        ctrls += [uov_method, uov_input_image]
-        ctrls += [empty_uov_method, empty_uov_input_image]
+        ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
         ctrls += [disable_preview, disable_intermediate_results, disable_seed_increment, black_out_nsfw]
         ctrls += [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, clip_skip]
@@ -1060,8 +1052,8 @@ with shared.gradio_root:
                     return trigger_describe(mode, img)
                 return gr.update(), gr.update()
 
-#            uov_input_image.upload(trigger_auto_describe, inputs=[desc_method, uov_input_image, prompt],
-#                                   outputs=[prompt, style_selections], show_progress=True, queue=True)
+            uov_input_image.upload(trigger_auto_describe, inputs=[desc_method, uov_input_image, prompt],
+                                   outputs=[prompt, style_selections], show_progress=True, queue=True)
 
             enhance_input_image.upload(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
                 .then(trigger_auto_describe, inputs=[desc_method, enhance_input_image, prompt], outputs=[prompt, style_selections], show_progress=True, queue=True)

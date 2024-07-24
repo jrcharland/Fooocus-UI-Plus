@@ -1082,8 +1082,6 @@ def worker():
         current_progress = 0
         if async_task.performance_selection == Performance.EXTREME_SPEED:
             set_lcm_defaults(async_task, current_progress, advance_progress=True)
-        elif async_task.performance_selection == Performance.LIGHTNING:
-            set_lightning_defaults(async_task, current_progress, advance_progress=True)
         elif async_task.performance_selection == Performance.HYPER_SD:
             set_hyper_sd_defaults(async_task, current_progress, advance_progress=True)
 

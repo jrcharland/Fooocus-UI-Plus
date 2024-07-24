@@ -69,8 +69,8 @@ refiner_swap_method = 'joint'
 
 cn_ip = "ImagePrompt"
 cn_ip_face = "FaceSwap"
-cn_canny = "PyraCanny"
-cn_cpds = "CPDS"
+cn_canny = "Keep Strokes"
+cn_cpds = "Keep Shapes"
 
 ip_list = [cn_ip, cn_canny, cn_cpds, cn_ip_face]
 default_ip = cn_ip
@@ -81,7 +81,8 @@ default_parameters = {
 
 output_formats = ['png', 'jpeg', 'webp']
 
-inpaint_mask_models = ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']
+#inpaint_mask_models = ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']
+inpaint_mask_models = ['u2net', 'u2net_human_seg', 'u2net_cloth_seg', 'isnet-general-use', 'isnet-anime', 'sam']
 inpaint_mask_cloth_category = ['full', 'upper', 'lower']
 inpaint_mask_sam_model = ['vit_b', 'vit_l', 'vit_h']
 
@@ -94,12 +95,25 @@ inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option
 desc_type_photo = 'Photograph'
 desc_type_anime = 'Art/Anime'
 
+"""
 sdxl_aspect_ratios = [
     '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
     '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960',
     '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768',
     '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640',
     '1664*576', '1728*576'
+]
+"""
+
+#less aspect ratio based on sai documentation of best resolution
+sdxl_aspect_ratios = [
+    '1152*896','896*1152','1216*832','832*1216','1344*768',
+    '768*1344','1536*640','640*1536','1024*1024'
+]
+
+sdxl_aspect_ratios_nearest_known = [
+    '4:3 ∣ ▭','3:4 ∣ ▯','3:2 ∣ ▭','2:3 ∣ ▯','16:9 ∣ ▭',
+    '9:16 ∣ ▯','21:9 ∣ ▭','9:21 ∣ ▯','1:1 ∣ □'
 ]
 
 
@@ -130,7 +144,6 @@ class PerformanceLoRA(Enum):
     QUALITY = None
     SPEED = None
     EXTREME_SPEED = 'sdxl_lcm_lora.safetensors'
-    LIGHTNING = 'sdxl_lightning_4step_lora.safetensors'
     HYPER_SD = 'sdxl_hyper_sd_4step_lora.safetensors'
 
 
@@ -138,7 +151,6 @@ class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
-    LIGHTNING = 4
     HYPER_SD = 4
 
     @classmethod
@@ -150,16 +162,14 @@ class StepsUOV(IntEnum):
     QUALITY = 36
     SPEED = 18
     EXTREME_SPEED = 8
-    LIGHTNING = 4
     HYPER_SD = 4
 
 
 class Performance(Enum):
     QUALITY = 'Quality'
-    SPEED = 'Speed'
-    EXTREME_SPEED = 'Extreme Speed'
-    LIGHTNING = 'Lightning'
-    HYPER_SD = 'Hyper-SD'
+    SPEED = 'Average'
+    EXTREME_SPEED = 'Speed'
+    HYPER_SD = 'Hyper-Speed'
 
     @classmethod
     def list(cls) -> list:
@@ -177,7 +187,7 @@ class Performance(Enum):
     def has_restricted_features(cls, x) -> bool:
         if isinstance(x, Performance):
             x = x.value
-        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value, cls.HYPER_SD.value]
+        return x in [cls.EXTREME_SPEED.value, cls.HYPER_SD.value]
 
     def steps(self) -> int | None:
         return Steps[self.name].value if self.name in Steps.__members__ else None

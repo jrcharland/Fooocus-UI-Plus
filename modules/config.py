@@ -105,7 +105,7 @@ def get_presets():
         print('No presets found.')
         return presets
 
-    return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
+    return [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
 
 def update_presets():
     global available_presets
@@ -405,7 +405,7 @@ default_performance = get_config_item_or_set_default(
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
-    default_value=False,
+    default_value=True,
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
@@ -457,6 +457,12 @@ available_aspect_ratios = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1,
     expected_type=list
 )
+linked_aspect_ratios_nearest_known = get_config_item_or_set_default(
+    key='linked_aspect_ratios_nearest_known',
+    default_value=modules.flags.sdxl_aspect_ratios_nearest_known,
+    validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1,
+    expected_type=list
+)
 default_aspect_ratio = get_config_item_or_set_default(
     key='default_aspect_ratio',
     default_value='1152*896' if '1152*896' in available_aspect_ratios else available_aspect_ratios[0],
@@ -471,7 +477,7 @@ default_inpaint_engine_version = get_config_item_or_set_default(
 )
 default_inpaint_method = get_config_item_or_set_default(
     key='default_inpaint_method',
-    default_value=modules.flags.inpaint_option_default,
+    default_value=modules.flags.inpaint_option_detail,
     validator=lambda x: x in modules.flags.inpaint_options,
     expected_type=str
 )
@@ -564,7 +570,7 @@ default_black_out_nsfw = get_config_item_or_set_default(
 )
 default_save_metadata_to_images = get_config_item_or_set_default(
     key='default_save_metadata_to_images',
-    default_value=False,
+    default_value=True,
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
@@ -607,7 +613,7 @@ default_inpaint_mask_cloth_category = get_config_item_or_set_default(
 
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
-    default_value='vit_b',
+    default_value='vit_l',
     validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
     expected_type=str
 )
@@ -660,8 +666,11 @@ if REWRITE_PRESET and isinstance(args_manager.args.preset, str):
 def add_ratio(x):
     a, b = x.replace('*', ' ').split(' ')[:2]
     a, b = int(a), int(b)
-    g = math.gcd(a, b)
-    return f'{a}×{b} <span style="color: grey;"> \U00002223 {a // g}:{b // g}</span>'
+#    g = math.gcd(a, b)
+#    return f'{a}×{b} <span style="color: grey;"> \U00002223 {a // g}:{b // g}</span>'
+    y = available_aspect_ratios.index(x)
+    return f'{a}×{b} <span style="color: grey;"> \U00002223 {linked_aspect_ratios_nearest_known[y]} </span>'
+
 
 
 default_aspect_ratio = add_ratio(default_aspect_ratio)
@@ -853,11 +862,11 @@ def downloading_safety_checker_model():
 
 def download_sam_model(sam_model: str) -> str:
     match sam_model:
-        case 'vit_b':
+        case 'segment_base' | 'vit_b':
             return downloading_sam_vit_b()
-        case 'vit_l':
+        case 'segment_large' | 'vit_l':
             return downloading_sam_vit_l()
-        case 'vit_h':
+        case 'segment_huge' | 'vit_h':
             return downloading_sam_vit_h()
         case _:
             raise ValueError(f"sam model {sam_model} does not exist.")
